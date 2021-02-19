@@ -22,12 +22,13 @@ namespace HotchocolateTemplate.Authentication
                 .AddJwtBearer("websocket", ctx => { }) // Websockets must first be allowed, as they are not authenticated until the onConnect message is sent. 
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = configuration["Keycloak:Authority"];
-                    options.ApiName = configuration["Keycloak:Client"];
+                    options.Authority = configuration["Authentication:Authority"];
+                    options.ApiName = configuration["Authentication:Client"];
 
-                    string secret = configuration["Keycloak:Secret"];
+                    string secret = configuration["Authentication:Secret"];
                     if (secret != string.Empty)
                     {
+                        Console.WriteLine("Secret");
                         options.ApiSecret = secret;
                     }
 
@@ -75,7 +76,6 @@ namespace HotchocolateTemplate.Authentication
                             {
                                 c.Response.StatusCode = 500;
                                 c.Response.ContentType = "text/plain";
-
                             }
                             return c.Response.WriteAsync("Error with the authentication");
                         }
@@ -86,5 +86,19 @@ namespace HotchocolateTemplate.Authentication
 
             return services;
         }
+
+
+
+        public static IServiceCollection AddAuthorization(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Administrator", policy => policy.RequireRole(configuration["Authentication:AdminRoleName"]));
+            });
+
+            return services;
+        }
+
+
     }
 }

@@ -29,15 +29,16 @@ namespace HotchocolateTemplate
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCustomJWTAuth(this.Configuration);
-            services.AddAuthentication();
+            services.AddAuthorization(this.Configuration);
 
             services.AddGraphQLServer()
                 .AddAuthorization()
                 .AddSocketSessionInterceptor<AuthSocketInterceptor>()
                 .AddQueryType(d => d.Name("Query"))
+                    .AddTypeExtension<TestQuery>()
                 .AddMutationType(d => d.Name("Mutation"))
-                    .AddTypeExtension<AuthMutations>()
-                .AddSubscriptionType(d => d.Name("Subscription"));
+                    .AddTypeExtension<AuthMutations>();
+                // .AddSubscriptionType(d => d.Name("Subscription"));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
